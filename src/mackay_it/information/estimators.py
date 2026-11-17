@@ -28,3 +28,23 @@ def estimate_entropy(
     N = samples.shape[0]
     probs = freqs / N
     return entropy(probs)
+
+
+def estimate_entropy_mm(
+    samples: jax.Array,
+    num_symbols: int,
+) -> jax.Array:
+    """
+    Estimate Shannon entropy using the Miller–Madow
+    bias correction.
+    """
+    mle_entropy = estimate_entropy(samples, num_symbols)
+
+    freqs = jnp.bincount(samples, length=num_symbols)
+
+    K = jnp.sum(freqs > 0)
+    N = samples.shape[0]
+
+    correction = (K - 1) / (2 * N * jnp.log(2.0))
+
+    return mle_entropy + correction
